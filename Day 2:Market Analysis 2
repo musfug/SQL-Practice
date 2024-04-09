@@ -17,6 +17,14 @@ left join items i on c.item_id=i.item_id)
  else 'no'
  end as result
  from cte3
+
+
+output
  
- 
+seller_id	   result
+    1	          no
+    2	          yes
+    3          	yes
+    4           	no
+
  
