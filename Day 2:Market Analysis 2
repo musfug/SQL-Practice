@@ -1,3 +1,4 @@
+
 with cte as(
  select seller_id, item_id ,order_date,
  rank() over(partition by seller_id order by order_date) as rnk
@@ -7,18 +8,19 @@ cte2 as(
   select seller_id,item_id from cte where rnk=2 ),
  
  cte3 as(
- select u.user_id as seller_id,favorite_brand,i.item_brand from users u
+ select u.user_id as seller_id,favorite_brand,i.item_brand ,i.item_id,
+ c.seller_id,c.item_id
+ from users u
 left join cte2 c on c.seller_id = u.user_id
 left join items i on c.item_id=i.item_id)
+
+select seller_id,
+case when favorite_brand=item_brand
+then 'yes'
+else 'no'
+end as result
+from cte3
  
- select seller_id,
- case when favorite_brand=item_brand
- then 'yes'
- else 'no'
- end as result
- from cte3
-
-
 output
  
 seller_id	   result
