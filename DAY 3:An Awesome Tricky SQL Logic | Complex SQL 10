@@ -1,0 +1,30 @@
+create table tasks (
+date_value date,
+state varchar(10)
+);
+
+insert into tasks  values ('2019-01-01','success'),('2019-01-02','success'),('2019-01-03','success'),('2019-01-04','fail')
+,('2019-01-05','fail'),('2019-01-06','success')
+
+output:-
+start_date	end_date	state
+2019-01-01	2019-01-03	success
+2019-01-04	2019-01-05	fail
+2019-01-06	2019-01-06	success
+
+
+Solution:-
+with cte as(
+select * , rank() over(partition by state order by date_value)as r1,
+ rank() over(order by date_value) as r2
+from tasks),
+cte2 as(
+select *, r2-r1 as r 
+from cte)
+
+select min(date_value) as start_date,
+max(date_value) as end_date, state
+from cte2
+group by r
+order by start_date
+
