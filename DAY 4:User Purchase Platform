@@ -51,14 +51,28 @@ from cte3
 union all
 select spend_date, 'both' as status,0 as amount, 0 as 'total_count' from cte5
 
+Aprroach 2:-
+with cte as(select t1.*,t2.user_id as u2,t2.spend_date s2,t2.platform p2,t2.amount as a2
+            from spending t1 left join spending t2
+ on t1.user_id=t2.user_id and t1.spend_date=t2.spend_date and 
+ t1.platform!=t2.platform),
+cte2 as(
+ select *,
+ case when p2 is not null then 'both' else platform end as flag
+ from cte)
+ select spend_date,flag,sum(amount)as total_spent,count(distinct user_id) total_user from cte2
+ group by spend_date,flag
+  
+ 
+
 Output:-
 spend_date	status	amount	total_count
 2019-07-01	mobile	100	      1
 2019-07-01	desktop	100     	1
-2019-07-01	both	  200	      1
-2019-07-02	mobile	100	      1
-2019-07-02	desktop	100	      1
-2019-07-02	both	   0	      0
+2019-07-01	both	   200	     1
+2019-07-02	mobile	 100	     1
+2019-07-02	desktop	100	     1
+2019-07-02	both	   0	       0
 
 
 
