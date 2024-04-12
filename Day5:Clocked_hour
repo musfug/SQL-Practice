@@ -1,0 +1,55 @@
+Question:-
+find total number of clocked hours be each employee(inside the office), flag-I means punch in and O means  punch out
+
+create table clocked_hours(
+
+empd_id int,
+
+swipe time,
+
+flag char
+
+)
+
+insert into clocked_hours values
+
+(11114,'08:30','I'),
+
+(11114,'10:30','O'),
+
+(11114,'11:30','I'),
+
+(11114,'15:30','O'),
+
+(11115,'09:30','I'),
+
+(11115,'17:30','O');
+
+
+Solution:-
+
+with cte as (
+select row_number() over(partition by empd_id,flag) as rn,
+empd_id,swipe,flag
+from clocked_hours
+order by empd_id),
+
+cte2 as(
+select c.empd_id as empd_ide1,c.swipe as swipee1,c.flag as flagee1 ,c2.swipe as swipee2,c2.flag as flage2
+from cte c join cte c2 
+on c.rn=c2.rn and c.empd_id=c2.empd_id
+and c.swipe!=c2.swipe 
+where c.flag='I'AND c2.flag='O')
+
+select empd_ide1 as empd_id,sum(swipee2-swipee1)as clocked_hour 
+from cte2
+group by empd_ide1;
+
+Output:-
+empd_id	clocked_hour
+11114	      6
+11115      	8
+
+
+
+
