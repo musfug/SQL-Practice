@@ -1,0 +1,55 @@
+Question:-
+we will silve a leetcode hard problem 1369 . 
+Where we need to find second most recent activity and if user has only 1 activoty then return that as it is. We will use SQL window functions to solve this problem.
+
+create table UserActivity
+(
+username      varchar(20) ,
+activity      varchar(20),
+startDate     Date   ,
+endDate      Date
+);
+
+insert into UserActivity values 
+('Alice','Travel','2020-02-12','2020-02-20')
+,('Alice','Dancing','2020-02-21','2020-02-23')
+,('Alice','Travel','2020-02-24','2020-02-28')
+,('Bob','Travel','2020-02-11','2020-02-18');
+
+
+Solution:-
+with cte as(
+select *,row_number() over(partition by username order by startDate desc )
+as rn from UserActivity),
+cte2 as(
+select * from cte where rn=2),
+
+cte3 as(
+select username ,count(*) as c from UserActivity u 
+group by username),
+
+cte4 as(
+select username from cte3 where c=1),
+
+cte5 as(
+select * from UserActivity where username in (select username
+from cte4))
+
+select username,activity,startDate,endDate from cte2
+union all 
+select * from cte5;
+
+
+Output:
+
++----------+----------+------------+------------+
+| username | activity | startDate  | endDate    |
++----------+----------+------------+------------+
+| Alice    | Dancing  | 2020-02-21 | 2020-02-23 |
+| Bob      | Travel   | 2020-02-11 | 2020-02-18 |
++----------+----------+------------+------------+
+
+
+
+
+
