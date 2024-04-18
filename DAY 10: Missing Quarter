@@ -1,0 +1,39 @@
+CREATE TABLE STORES (
+Store varchar(10),
+Quarter varchar(10),
+Amount int);
+
+INSERT INTO STORES (Store, Quarter, Amount)
+VALUES ('S1', 'Q1', 200),
+('S1', 'Q2', 300),
+('S1', 'Q4', 400),
+('S2', 'Q1', 500),
+('S2', 'Q3', 600),
+('S2', 'Q4', 700),
+('S3', 'Q1', 800),
+('S3', 'Q2', 750),
+('S3', 'Q3', 900);
+
+with cte as(
+select store ,group_concat(quarter) qua_concat from stores
+group by store)
+select store,
+case when qua_concat='Q2,Q3,Q4' THEN 'Q1'
+ when qua_concat='Q1,Q3,Q4' THEN 'Q2'
+ when qua_concat='Q1,Q2,Q4' THEN 'Q3'
+ when qua_concat='Q1,Q2,Q3' THEN 'Q4'
+end as missing
+from cte 
+output:-
++-------+---------+
+| store | missing |
++-------+---------+
+| S1    | Q3      |
+| S2    | Q2      |
+| S3    | Q4      |
++-------+---------+
+
+
+
+
+
