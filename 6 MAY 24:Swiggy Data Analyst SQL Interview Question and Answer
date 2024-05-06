@@ -5,8 +5,7 @@ CREATE TABLE stock (
     record_date DATE
 );
 
--- Insert the data
-delete from stock;
+
 INSERT INTO stock (supplier_id, product_id, stock_quantity, record_date)
 VALUES
     (1, 1, 60, '2022-01-01'),
