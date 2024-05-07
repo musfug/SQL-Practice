@@ -1,0 +1,103 @@
+CREATE TABLE [students](
+ [studentid] [int] NULL,
+ [studentname] [nvarchar](255) NULL,
+ [subject] [nvarchar](255) NULL,
+ [marks] [int] NULL,
+ [testid] [int] NULL,
+ [testdate] [date] NULL
+)
+data:
+insert into students values (2,'Max Ruin','Subject1',63,1,'2022-01-02');
+insert into students values (3,'Arnold','Subject1',95,1,'2022-01-02');
+insert into students values (4,'Krish Star','Subject1',61,1,'2022-01-02');
+insert into students values (5,'John Mike','Subject1',91,1,'2022-01-02');
+insert into students values (4,'Krish Star','Subject2',71,1,'2022-01-02');
+insert into students values (3,'Arnold','Subject2',32,1,'2022-01-02');
+insert into students values (5,'John Mike','Subject2',61,2,'2022-11-02');
+insert into students values (1,'John Deo','Subject2',60,1,'2022-01-02');
+insert into students values (2,'Max Ruin','Subject2',84,1,'2022-01-02');
+insert into students values (2,'Max Ruin','Subject3',29,3,'2022-01-03');
+insert into students values (5,'John Mike','Subject3',98,2,'2022-11-02');
+
+
+ans1:-
+with cte as(
+select subject,avg(marks) as average from students
+group by subject)
+select s.* , c.* from students s join cte c  on s.subject=c.subject
+ where s.marks> c.average
+ 
+ Output:-
+ 3	Arnold	Subject1	95	1	2022-01-02	Subject1	77
+5	John Mike	Subject1	91	1	2022-01-02	Subject1	77
+4	Krish Star	Subject2	71	1	2022-01-02	Subject2	61
+2	Max Ruin	Subject2	84	1	2022-01-02	Subject2	61
+5	John Mike	Subject3	98	2	2022-11-02	Subject3	63
+
+
+ans2:-
+with cte as(
+ select max(studentid) as total from students
+ order by studentid),
+ cte2 as(
+ select  studentid from students where marks>90
+ group by studentid )
+select (count(*)*1.0/cte.total)*100 as ans  from cte2 ,cte;
+
+output:-
+ans
+40
+
+ans3:-
+with cte as(
+select * , 
+rank() over(partition by subject order by marks desc) as rni,
+rank() over(partition by subject  order by marks ) as rnd
+from students),
+cte2 as(select subject ,marks as second_high_marks from cte 
+where rni=2),
+cte3 as(
+select subject ,marks as second_min_marks from cte 
+where rnd=2)
+select c.subject , second_high_marks ,second_min_marks  from cte2 c join cte3 c1  on c.subject=c1.subject
+
+
+output:-
+subject   sec_high_marks    sec_low_marks
+Subject1	  91	            63
+Subject2  	71	            60
+Subject3	  29	             98
+
+ans4:-
+with cte as(
+select * ,lag(marks,1) over(partition by studentid order by testdate,subject) as prev_marks
+from students )
+select * ,
+case
+when prev_marks<marks then'increasing' 
+when prev_marks>marks then 'decreasing'
+else 'nothing' end as predicted
+from cte;
+
+output:-
+1	John Deo	Subject2	60	1	2022-01-02	NULL	nothing
+2	Max Ruin	Subject1	63	1	2022-01-02	NULL	nothing
+2	Max Ruin	Subject2	84	1	2022-01-02	63	increasing
+2	Max Ruin	Subject3	29	3	2022-01-03	84	decreasing
+3	Arnold	Subject1	95	1	2022-01-02	NULL	nothing
+3	Arnold	Subject2	32	1	2022-01-02	95	decreasing
+4	Krish Star	Subject1	61	1	2022-01-02	NULL	nothing
+4	Krish Star	Subject2	71	1	2022-01-02	61	increasing
+5	John Mike	Subject1	91	1	2022-01-02	NULL	nothing
+5	John Mike	Subject2	61	2	2022-11-02	91	decreasing
+5	John Mike	Subject3	98	2	2022-11-02	61	increasing
+
+
+
+
+
+
+
+
+
+
