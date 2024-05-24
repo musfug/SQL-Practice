@@ -1,0 +1,22 @@
+create table business_city (
+business_date date,
+city_id int
+);
+delete from business_city;
+insert into business_city
+values(cast('2020-01-02' as date),3),(cast('2020-07-01' as date),7),(cast('2021-01-01' as date),3),(cast('2021-02-03' as date),19)
+,(cast('2022-12-01' as date),3),(cast('2022-12-15' as date),3),(cast('2022-02-28' as date),12);
+
+Solution:-
+with cte as(
+select * ,rank () over(partition by city_id order by business_date) as rn from business_city ), 
+cte2 as(select business_date,city_id from cte where rn=1)
+ select business_date ,count(*) as new_date from cte2
+ group by business_date
+
+Output:-
+business_date	new_date
+2020	         2
+2021        	 1
+2022	        1
+  
