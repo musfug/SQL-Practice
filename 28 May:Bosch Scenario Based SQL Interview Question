@@ -1,0 +1,32 @@
+create table call_details  (
+call_type varchar(10),
+call_number varchar(12),
+call_duration int
+);
+
+insert into call_details
+values ('OUT','181868',13),('OUT','2159010',8)
+,('OUT','2159010',178),('SMS','4153810',1),('OUT','2159010',152),('OUT','9140152',18),('SMS','4162672',1)
+,('SMS','9168204',1),('OUT','9168204',576),('INC','2159010',5),('INC','2159010',4),('SMS','2159010',1)
+,('SMS','4535614',1),('OUT','181868',20),('INC','181868',54),('INC','218748',20),('INC','2159010',9)
+,('INC','197432',66),('SMS','2159010',1),('SMS','4535614',1);
+
+
+Solution:-
+with cte as
+(select c1.call_type as fity,c1.call_number as firnu , c1.call_duration as firdu ,  c2.call_type as secy,c2.call_number as secnu , 
+c2.call_duration as secdu from call_details c1 join call_details c2 on c1.call_number=c2.call_number  and (c1.call_type='OUT'and c2.call_type='INC')) , 
+
+INC as( select  fity , firnu,  firdu, secy, sum(secdu) as t_sum from cte group by fity, firnu , firdu) ,
+
+OUT AS(
+select  fity,firnu,  sum(firdu),secy,t_sum from INC
+group by secy, t_sum 
+having sum(firdu)>t_sum)
+
+select firnu as call_number from out;
+
+Output:-
+call_number
+2159010
+
