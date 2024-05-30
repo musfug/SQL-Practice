@@ -1,0 +1,61 @@
+Question:-
+create table students
+(
+student_id int,
+student_name varchar(20)
+);
+insert into students values
+(1,'Daniel'),(2,'Jade'),(3,'Stella'),(4,'Jonathan'),(5,'Will');
+
+create table exams
+(
+exam_id int,
+student_id int,
+score int);
+
+insert into exams values
+(10,1,70),(10,2,80),(10,3,90),(20,1,80),(30,1,70),(30,3,80),(30,4,90),(40,1,60)
+,(40,2,70),(40,4,80);
+
+
+Solution:-
+with max_marks as (
+select max(score) as x_mark,exam_id,student_id 
+from exams group by exam_id),
+
+min_marks as(
+select min(score) as minmark ,exam_id,student_id 
+from exams group by exam_id),
+
+cte3 as(
+select ma.student_id as maxst,  ma.x_mark as maxmark, 
+mi.student_id as minst,  mi.minmark as minmark,
+ma.exam_id
+from max_marks ma join min_marks mi
+on ma.exam_id=mi.exam_id),
+
+cte4 as(
+select e.* ,s.* from exams e join students s on e.student_id=s.student_id ),
+
+cte5 as (
+select c.*,e.* from cte3 c join cte4 e on  e.student_id == c.maxst  or e.student_id == c.minst and  e.exam_id=c.exam_id),
+cte6 as(
+select student_id ,student_name from students where student_id  in
+( select student_id from exams) )
+select student_id ,student_name from  cte6 where student_id not in
+( select student_id from cte5) 
+
+
+Output:-
+
+student_id	student_name
+2          	  Jade
+
+
+
+
+
+
+
+
+
